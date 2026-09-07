@@ -27,10 +27,9 @@ import { PONS_CHAIN, PONS_CHAIN_ID } from './config'
 /**
  * Read-only, always available, always on chain 4663.
  *
- * Straight to the chain — the browser talks to an RPC and nothing of MESH's
- * sits in the path, so the launchpad keeps working whatever the MESH server is
- * doing. Which RPC is `robinhoodRpcUrl()`: a dedicated provider when one is
- * configured, and the chain's public endpoint otherwise.
+ * Straight to the RPC Robinhood Chain publishes — the browser talks to the
+ * chain and nothing of MESH's sits in the path, so the launchpad keeps working
+ * whatever the MESH server is doing, and there is no key to leak or rotate.
  *
  * Reads are folded through Multicall3 rather than JSON-RPC batching. Checking
  * the quote-asset registry alone is over two hundred `eth_call`s, and a batch
