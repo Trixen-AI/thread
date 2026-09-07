@@ -14,6 +14,7 @@ import {
   verifyPassword,
 } from './auth.js'
 import * as repo from './repo.js'
+import { ACCEPTED_IMAGE_TYPES, MAX_IMAGE_BYTES, uploadHandler } from './pinata.js'
 import { rpcRelay } from './rpc.js'
 import { seedIfEmpty } from './seed.js'
 
@@ -94,6 +95,22 @@ const fail = (res, status, error, fields) => res.status(status).json({ error, fi
  * chain state, which is public whether or not anyone is signed in.
  */
 app.post('/api/rpc', rpcRelay)
+
+/* --------------------------------- Uploads --------------------------------- */
+
+/**
+ * A token image, on its way to IPFS. Signed in only — this pins to an account
+ * pons never sees, and an open endpoint would be someone else's storage bill.
+ *
+ * The raw parser is scoped to this route so the JSON parser keeps handling
+ * everything else.
+ */
+app.post(
+  '/api/upload',
+  requireAuth,
+  express.raw({ type: ACCEPTED_IMAGE_TYPES, limit: MAX_IMAGE_BYTES }),
+  uploadHandler,
+)
 
 /* --------------------------------- Auth --------------------------------- */
 

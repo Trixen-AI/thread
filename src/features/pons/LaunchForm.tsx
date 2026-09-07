@@ -36,6 +36,7 @@ import { Field, Input, Switch, Textarea } from '@/components/ui/Field'
 import { Badge } from '@/components/ui/Badge'
 import { Spinner } from '@/components/ui/Feedback'
 import { ConnectWalletButton } from '@/features/wallet/ConnectWalletModal'
+import { ImageUpload } from './ImageUpload'
 import { TokenLogo } from './TokenBits'
 import { fmtBps, fmtCompactUnits, fmtPct, fmtPrice, fmtUnits, parseAmount } from './format'
 
@@ -210,9 +211,7 @@ export function LaunchForm({ terms, onLaunched }: { terms: LaunchTerms; onLaunch
                 />
               </Field>
             </div>
-            <Field label="Image" hint="An ipfs:// or https:// URI. Shown wherever the token appears." error={showError('logo')}>
-              <Input value={draft.logo} onChange={(e) => patch({ logo: e.target.value })} placeholder="ipfs://…" />
-            </Field>
+            <ImageUpload value={draft.logo} onChange={(logo) => patch({ logo })} error={showError('logo')} />
           </div>
         </div>
         <Field label="Description">

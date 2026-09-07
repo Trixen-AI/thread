@@ -67,10 +67,19 @@ export function parseAmount(input: string, decimals: number): bigint | null {
   }
 }
 
+/**
+ * Where `ipfs://` images are fetched from. A gateway is only a reader — the
+ * content is addressed by its own hash, so a different gateway serves the same
+ * bytes or none at all, and cannot serve different ones.
+ */
+const IPFS_GATEWAY = (import.meta.env.VITE_IPFS_GATEWAY ?? 'https://gateway.pinata.cloud/ipfs/')
+  .trim()
+  .replace(/\/*$/, '/')
+
 /** An ipfs:// URI as something an <img> can load. Anything else passes through. */
 export function imageUrl(uri: string): string | null {
   if (!uri) return null
-  if (uri.startsWith('ipfs://')) return `https://ipfs.io/ipfs/${uri.slice('ipfs://'.length)}`
+  if (uri.startsWith('ipfs://')) return `${IPFS_GATEWAY}${uri.slice('ipfs://'.length)}`
   if (/^https?:\/\//.test(uri)) return uri
   return null
 }

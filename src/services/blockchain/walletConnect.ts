@@ -21,6 +21,22 @@ import type { WalletOption } from './wallets'
 
 const PROJECT_ID = (import.meta.env.VITE_REOWN_PROJECT_ID ?? '').trim()
 
+/**
+ * The app's canonical URL, as declared to the wallet.
+ *
+ * Reown verifies a connection by checking this against the domains registered
+ * on the project, and the wallet reports the result — so it has to name a
+ * domain that is actually registered there.
+ *
+ * The live origin is the default, and it is the right one almost always: it
+ * matches wherever the person really is, including Netlify preview builds.
+ * `VITE_APP_URL` overrides it for the case where every session should be
+ * attributed to one canonical domain. Set it only to a domain that is
+ * registered on the Reown project — pointing it at an unregistered one makes
+ * the mismatch worse than leaving it alone.
+ */
+const APP_URL = (import.meta.env.VITE_APP_URL ?? '').trim().replace(/\/+$/, '')
+
 export const WALLETCONNECT_ID = 'walletconnect'
 
 /** True when a project id was configured at build time. */
@@ -61,10 +77,10 @@ async function init(): Promise<WcProvider> {
       metadata: {
         name: 'MESH',
         description: 'Your Identity. Your Network. Your Value.',
-        // Must match the domain registered on the Reown project, or the wallet
-        // shows the connection as unverified.
-        url: window.location.origin,
-        icons: [`${window.location.origin}/favicon.ico`],
+        // Must be a domain registered under Project Domains on the Reown
+        // project, or the wallet reports the connection as unverified.
+        url: APP_URL || window.location.origin,
+        icons: [`${APP_URL || window.location.origin}/favicon.ico`],
       },
     })
     instance = provider

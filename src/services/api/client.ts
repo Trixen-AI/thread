@@ -155,6 +155,33 @@ export const api = {
   setFollow: (userId: string, follow: boolean) =>
     request<{ user: User }>(`/users/${userId}/follow`, { method: 'POST', body: { follow } }),
 
+  /**
+   * Pins an image to IPFS and returns its `ipfs://` URI.
+   *
+   * The file is the request body rather than a multipart form: there is one
+   * file and nothing else to send. The server holds the Pinata credential and
+   * this never sees it.
+   */
+  uploadImage: async (file: File): Promise<{ cid: string; uri: string }> => {
+    const token = tokenStore.get()
+    let response: Response
+    try {
+      response = await fetch(`${API_ORIGIN}/api/upload`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': file.type,
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: file,
+      })
+    } catch {
+      throw new ApiError(0, 'Cannot reach the MESH server to upload that image.')
+    }
+    const payload = await response.json().catch(() => ({}))
+    if (!response.ok) throw new ApiError(response.status, payload.error ?? 'The upload failed.')
+    return payload as { cid: string; uri: string }
+  },
+
   /* Posts */
   posts: (scope: 'for-you' | 'following' = 'for-you') =>
     request<{ posts: Post[] }>(`/posts?scope=${scope}`),
