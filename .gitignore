@@ -1,0 +1,15 @@
+node_modules
+dist
+dist-ssr
+*.local
+.DS_Store
+*.tsbuildinfo
+.vite
+
+# Real environment values. `.env.example` is the committed template.
+.env
+.env.*
+!.env.example
+
+# The local database: accounts, posts and messages of whoever uses this instance
+server/data/

@@ -1,0 +1,379 @@
+@import 'tailwindcss';
+
+/* ==================================================================
+   MESH — material system
+
+   Modelled on iOS: glass is a material for *chrome* — navigation bars,
+   tab bars, sheets, menus, floating controls — never for body content.
+   Content sits on near-opaque surfaces so text stays crisp and legible.
+
+   Three things make glass read as glass rather than "a transparent div":
+     1. something coloured behind it to refract (see the ambient wash)
+     2. blur paired with a saturation boost
+     3. a lit top edge — a specular highlight — and a hairline border
+   ================================================================== */
+
+@theme {
+  /* SF where it exists, Inter as the metric-compatible stand-in elsewhere. */
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Inter',
+    ui-sans-serif, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  /* Brand — built around iOS systemIndigo */
+  --color-brand-50: #f1f1fd;
+  --color-brand-100: #e5e5fb;
+  --color-brand-200: #d0cff8;
+  --color-brand-300: #b0aef2;
+  --color-brand-400: #8d8ae9;
+  --color-brand-500: #706ddf;
+  --color-brand-600: #5856d6;
+  --color-brand-700: #4a48bd;
+  --color-brand-800: #3c3a99;
+  --color-brand-900: #33327c;
+  --color-brand-950: #1f1e4d;
+
+  /* Neutrals derived from the iOS label grey (#3C3C43), which is blue-tinted */
+  --color-ink-50: #f7f7fa;
+  --color-ink-100: #f0f0f4;
+  --color-ink-200: #e3e3e9;
+  --color-ink-300: #cfcfd8;
+  --color-ink-400: #9c9ca8;
+  --color-ink-500: #71717f;
+  --color-ink-600: #55555f;
+  --color-ink-700: #3c3c43;
+  --color-ink-800: #26262b;
+  --color-ink-900: #131316;
+  --color-ink-950: #08080a;
+
+  /* iOS system colours */
+  --color-verified: #007aff;
+  --color-like: #ff2d55;
+  --color-success: #34c759;
+  --color-warn: #ff9500;
+  --color-danger: #ff3b30;
+
+  --color-canvas: #f2f2f7;
+
+  /* Radii — iOS continuous-corner proportions */
+  --radius-control: 0.75rem;
+  --radius-card: 1.25rem;
+  --radius-sheet: 1.75rem;
+
+  /* Elevation: soft, wide, low-opacity. Never a hard drop shadow. */
+  --shadow-card: 0 1px 2px rgb(16 16 24 / 0.04), 0 6px 16px -6px rgb(16 16 24 / 0.06);
+  --shadow-raise: 0 2px 4px rgb(16 16 24 / 0.04), 0 12px 28px -10px rgb(16 16 24 / 0.1);
+  --shadow-glass: 0 1px 1px rgb(16 16 24 / 0.04), 0 10px 32px -12px rgb(16 16 24 / 0.16);
+  --shadow-pop: 0 16px 48px -12px rgb(16 16 24 / 0.22), 0 4px 12px -4px rgb(16 16 24 / 0.08);
+  --shadow-brand: 0 4px 14px -3px rgb(88 86 214 / 0.45);
+
+  /* iOS springs. Sheets use the long-tailed one; taps use the short one. */
+  --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-tap: cubic-bezier(0.2, 0.9, 0.3, 1.2);
+
+  --animate-fade-in: fade-in 0.2s ease-out;
+  --animate-pop-in: pop-in 0.24s cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-sheet-up: sheet-up 0.42s cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-toast-in: toast-in 0.36s cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-shimmer: shimmer 1.6s linear infinite;
+  --animate-heart: heart 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.4);
+  --animate-spin-slow: spin 0.7s linear infinite;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(6px);
+  }
+}
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+}
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.96);
+  }
+}
+@keyframes shimmer {
+  to {
+    background-position: 200% 0;
+  }
+}
+@keyframes heart {
+  40% {
+    transform: scale(1.35);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@layer base {
+  * {
+    border-color: color-mix(in oklab, var(--color-ink-700) 16%, transparent);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-canvas text-ink-900 font-sans antialiased;
+    letter-spacing: -0.01em;
+    text-rendering: optimizeLegibility;
+  }
+
+  /*
+   * The ambient wash.
+   *
+   * Glass with nothing behind it is just a grey box. This fixed, very low
+   * saturation field gives every translucent surface something to pick up as
+   * content scrolls under it — the effect reads as depth, not as decoration.
+   */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(58rem 40rem at 10% -10%, rgb(88 86 214 / 0.16), transparent 62%),
+      radial-gradient(46rem 34rem at 98% 4%, rgb(175 82 222 / 0.11), transparent 64%),
+      radial-gradient(50rem 38rem at 76% 96%, rgb(0 122 255 / 0.09), transparent 62%),
+      radial-gradient(40rem 30rem at 24% 78%, rgb(52 199 89 / 0.05), transparent 64%),
+      var(--color-canvas);
+  }
+
+  :focus-visible {
+    outline: 2.5px solid var(--color-brand-500);
+    outline-offset: 2px;
+    border-radius: 8px;
+  }
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  ::selection {
+    background: var(--color-brand-200);
+  }
+
+  .scroll-slim {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, var(--color-ink-700) 24%, transparent) transparent;
+  }
+  .scroll-slim::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .scroll-slim::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--color-ink-700) 22%, transparent);
+    border-radius: 999px;
+  }
+  .scroll-slim::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* ---------------------------------------------------------------
+     Materials
+     `--glass-tint` sets the fill; each level differs in opacity and
+     blur radius, exactly like iOS's thin → regular → thick materials.
+     --------------------------------------------------------------- */
+  .glass,
+  .glass-thin,
+  .glass-thick {
+    position: relative;
+    background: rgb(255 255 255 / var(--glass-alpha, 0.72));
+    -webkit-backdrop-filter: blur(var(--glass-blur, 28px)) saturate(180%);
+    backdrop-filter: blur(var(--glass-blur, 28px)) saturate(180%);
+    box-shadow:
+      inset 0 0 0 0.5px rgb(255 255 255 / 0.6),
+      inset 0 1px 0 rgb(255 255 255 / 0.85),
+      0 0 0 0.5px rgb(16 16 24 / 0.06),
+      var(--shadow-glass);
+  }
+
+  .glass-thin {
+    --glass-alpha: 0.58;
+    --glass-blur: 22px;
+  }
+
+  .glass-thick {
+    --glass-alpha: 0.86;
+    --glass-blur: 40px;
+  }
+
+  /* Navigation chrome: edge-to-edge, so it gets a hairline instead of a ring. */
+  .glass-bar {
+    background: rgb(255 255 255 / 0.7);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    backdrop-filter: blur(28px) saturate(180%);
+  }
+
+  /* Dark glass, for the welcome screen and media overlays. */
+  .glass-dark {
+    background: rgb(20 20 26 / 0.42);
+    -webkit-backdrop-filter: blur(28px) saturate(160%);
+    backdrop-filter: blur(28px) saturate(160%);
+    box-shadow:
+      inset 0 0 0 0.5px rgb(255 255 255 / 0.16),
+      inset 0 1px 0 rgb(255 255 255 / 0.22),
+      0 12px 36px -12px rgb(0 0 0 / 0.5);
+  }
+
+  /*
+   * Content surface. Deliberately near-opaque: body text over a live blur is
+   * harder to read and costs a compositor layer per card.
+   */
+  .mesh-card {
+    background: rgb(255 255 255 / 0.94);
+    -webkit-backdrop-filter: saturate(140%);
+    backdrop-filter: saturate(140%);
+    border-radius: var(--radius-card);
+    box-shadow:
+      inset 0 0 0 0.5px rgb(16 16 24 / 0.07),
+      inset 0 1px 0 rgb(255 255 255 / 0.9),
+      var(--shadow-card);
+  }
+
+  /*
+   * Feed surfaces run edge-to-edge on phones — a floating card inset by 12px
+   * wastes width on a 375pt screen — and become cards from the lg breakpoint
+   * up, where there is room for them to float.
+   */
+  .mesh-card-flush {
+    background: rgb(255 255 255 / 0.94);
+    border-radius: 0;
+    box-shadow: inset 0 -0.5px 0 rgb(60 60 67 / 0.2);
+  }
+
+  @media (min-width: 64rem) {
+    .mesh-card-flush {
+      border-radius: var(--radius-card);
+      box-shadow:
+        inset 0 0 0 0.5px rgb(16 16 24 / 0.07),
+        inset 0 1px 0 rgb(255 255 255 / 0.9),
+        var(--shadow-card);
+    }
+  }
+
+  /*
+   * Grouped containers inside a card. iOS builds these from hairlines and
+   * recessed fills rather than 1px borders, which read as heavy at this scale.
+   */
+  .panel {
+    border-radius: 16px;
+    box-shadow: inset 0 0 0 0.5px rgb(16 16 24 / 0.12);
+  }
+  .panel-sm {
+    border-radius: 12px;
+    box-shadow: inset 0 0 0 0.5px rgb(16 16 24 / 0.12);
+  }
+  .panel-inset {
+    border-radius: 16px;
+    background: rgb(60 60 67 / 0.05);
+    box-shadow: inset 0 0 0 0.5px rgb(16 16 24 / 0.06);
+  }
+
+  /* Comment and chat fields: capsule, recessed, lifts to white on focus. */
+  .field-capsule {
+    border-radius: 9999px;
+    background: rgb(60 60 67 / 0.07);
+    box-shadow: inset 0 0 0 0.5px rgb(16 16 24 / 0.05);
+    transition: all 0.2s;
+  }
+  .field-capsule:focus {
+    background: #fff;
+    box-shadow: inset 0 0 0 1.5px var(--color-brand-500);
+    outline: none;
+  }
+
+  /* iOS hairline separator — thinner than a 1px border at any density. */
+  .hairline {
+    box-shadow: inset 0 -0.5px 0 rgb(60 60 67 / 0.22);
+  }
+  .hairline-t {
+    box-shadow: inset 0 0.5px 0 rgb(60 60 67 / 0.22);
+  }
+
+  .mesh-skeleton {
+    background: linear-gradient(
+      90deg,
+      var(--color-ink-100) 25%,
+      var(--color-ink-200) 37%,
+      var(--color-ink-100) 63%
+    );
+    background-size: 200% 100%;
+    animation: var(--animate-shimmer);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Media wells get an inner hairline so light artwork keeps a defined edge. */
+  .media-ring {
+    box-shadow: inset 0 0 0 0.5px rgb(16 16 24 / 0.1);
+  }
+}
+
+/*
+ * Honour the system transparency setting, and degrade gracefully where
+ * backdrop-filter is unavailable — in both cases the material becomes solid
+ * rather than a washed-out translucent panel with unreadable text.
+ */
+@media (prefers-reduced-transparency: reduce) {
+  .glass,
+  .glass-thin,
+  .glass-thick,
+  .glass-bar {
+    background: rgb(255 255 255 / 0.97) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+  .glass-dark {
+    background: rgb(20 20 26 / 0.92) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass,
+  .glass-thin,
+  .glass-thick,
+  .glass-bar {
+    background: rgb(255 255 255 / 0.96);
+  }
+  .glass-dark {
+    background: rgb(20 20 26 / 0.9);
+  }
+}
