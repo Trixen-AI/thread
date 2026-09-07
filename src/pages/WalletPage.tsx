@@ -40,7 +40,7 @@ import { EmptyState, ErrorState, RowSkeleton, Spinner } from '@/components/ui/Fe
 import { Menu, MenuDivider, MenuItem } from '@/components/ui/Menu'
 import { Scene } from '@/components/social/Scene'
 import { TokenIcon } from '@/features/wallet/TokenIcon'
-import { ConnectWalletButton } from '@/features/wallet/ConnectWalletModal'
+import { ConnectWalletButton } from '@/features/wallet/ConnectWallet'
 
 export function WalletPage() {
   const state = useApp()

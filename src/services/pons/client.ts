@@ -1,6 +1,5 @@
 import {
   createPublicClient,
-  fallback,
   http,
   type Address,
   type PublicClient,
@@ -28,7 +27,9 @@ import { PONS_CHAIN, PONS_CHAIN_ID } from './config'
 /**
  * Read-only, always available, always on chain 4663.
  *
- * Two things about this transport are deliberate.
+ * Straight to the RPC Robinhood Chain publishes — the browser talks to the
+ * chain and nothing of MESH's sits in the path, so the launchpad keeps working
+ * whatever the MESH server is doing.
  *
  * Reads are folded through Multicall3 rather than JSON-RPC batching. Checking
  * the quote-asset registry alone is over two hundred `eth_call`s, and a batch
@@ -36,21 +37,16 @@ import { PONS_CHAIN, PONS_CHAIN_ID } from './config'
  * the same work is a single call. The contract is the canonical deployment and
  * was confirmed to hold bytecode on this chain — see the chain registry.
  *
- * And the chain's own RPC is tried first, with MESH's read-only relay behind
- * it. The RPC intermittently answers with two `Access-Control-Allow-Origin`
- * headers, which browsers reject outright — a launch page that renders or not
- * depending on which header the gateway happened to send is not a page. The
- * relay is the same RPC, reached from a server, and it carries no credential
- * because none is needed. Reads still go direct whenever the browser allows it,
- * so the launchpad keeps working even when the MESH server does not.
+ * A failed read is retried a few times and then reported as itself. There was
+ * briefly a server-side relay behind this as a fallback, for the occasions when
+ * the RPC answers with a malformed CORS header; it was removed because a second
+ * path that can fail in its own way turns one rare hiccup into two failure
+ * modes, and the one it produced — a 404 from the front end's own host — said
+ * nothing true about what went wrong.
  */
 export const ponsClient: PublicClient = createPublicClient({
   chain: PONS_CHAIN,
-  transport: fallback([http(PONS_CHAIN.rpcUrls.default.http[0]), http('/api/rpc')], {
-    // The relay is a fallback, not a load-balanced peer: never rank it ahead of
-    // the chain's own RPC on a lucky latency sample.
-    rank: false,
-  }),
+  transport: http(PONS_CHAIN.rpcUrls.default.http[0], { retryCount: 3, retryDelay: 300 }),
   batch: { multicall: { wait: 24 } },
 })
 

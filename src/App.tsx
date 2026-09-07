@@ -27,7 +27,6 @@ import { CollectModal } from '@/features/payments/CollectModal'
 import { PurchaseModal } from '@/features/payments/PurchaseModal'
 import { AccessModal } from '@/features/communities/AccessModal'
 import { WalletSheets } from '@/features/wallet/WalletSheets'
-import { ConnectWalletModal } from '@/features/wallet/ConnectWalletModal'
 import { NetworkModal } from '@/features/wallet/NetworkModal'
 import { StoryViewer } from '@/features/stories/Stories'
 
@@ -44,7 +43,6 @@ function Overlays() {
       <PurchaseModal />
       <AccessModal />
       <WalletSheets />
-      <ConnectWalletModal />
       <NetworkModal />
       <StoryViewer />
       <Toaster />

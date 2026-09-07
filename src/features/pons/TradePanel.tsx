@@ -18,7 +18,7 @@ import {
 } from '@/services/pons'
 import { Button } from '@/components/ui/Button'
 import { SegmentedTabs } from '@/components/ui/Tabs'
-import { ConnectWalletButton } from '@/features/wallet/ConnectWalletModal'
+import { ConnectWalletButton } from '@/features/wallet/ConnectWallet'
 import { fmtBps, fmtPrice, fmtUnits, parseAmount } from './format'
 
 type Side = 'buy' | 'sell'

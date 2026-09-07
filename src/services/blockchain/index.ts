@@ -23,8 +23,7 @@ import type { ChainProvider, OwnershipProof, TransferRequest } from './provider'
 import { demoProvider } from './demoProvider'
 
 import { evmProvider } from './evmProvider'
-import { discoverWallets, getWallets, type WalletOption } from './wallets'
-import { walletConnectOption } from './walletConnect'
+import { getWallets, type WalletOption } from './wallets'
 
 export { providerRegistry } from './provider'
 export type { ChainProvider, OwnershipProof, TransferRequest } from './provider'
@@ -32,32 +31,17 @@ export { demoProvider } from './demoProvider'
 export { evmProvider } from './evmProvider'
 export * from './chains'
 export * from './wallets'
-export * from './walletConnect'
+export * from './appkit'
 
 /**
- * Every wallet MESH can connect to: the extensions that announced themselves,
- * plus WalletConnect when a Reown project id is configured.
+ * Bootstrap. Registers the stand-in provider so every service has something to
+ * talk to before a wallet is connected; connecting one swaps it underneath them
+ * all, and nothing else in the app changes.
  *
- * Kept separate from `getWallets()` so the picker can still tell "no extension
- * is installed" from "nothing to connect with at all" — those want different
- * things said to the user.
- */
-export const allWallets = (): WalletOption[] => {
-  const wc = walletConnectOption()
-  return wc ? [...getWallets(), wc] : getWallets()
-}
-
-/** Looks a wallet up by id across both, for restoring a previous session. */
-export const findWallet = (id: string | null): WalletOption | undefined =>
-  id ? allWallets().find((w) => w.id === id) : undefined
-
-/**
- * Bootstrap. Starts wallet discovery and registers the demo provider, so the
- * app works with no wallet installed. Choosing a real wallet swaps the provider
- * underneath every service — nothing else in the app changes.
+ * There is no wallet discovery here any more. MESH used to listen for EIP-6963
+ * announcements to build its own picker; AppKit does that itself, and better.
  */
 export function initBlockchain(provider: ChainProvider = demoProvider) {
-  discoverWallets()
   providerRegistry.set(provider)
 }
 

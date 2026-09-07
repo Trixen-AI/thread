@@ -15,7 +15,6 @@ import {
 } from './auth.js'
 import * as repo from './repo.js'
 import { ACCEPTED_IMAGE_TYPES, MAX_IMAGE_BYTES, uploadHandler } from './pinata.js'
-import { rpcRelay } from './rpc.js'
 import { seedIfEmpty } from './seed.js'
 
 /**
@@ -86,15 +85,6 @@ function requireAuth(req, res, next) {
 app.use(authenticate)
 
 const fail = (res, status, error, fields) => res.status(status).json({ error, fields })
-
-/* ---------------------------------- Chain ---------------------------------- */
-
-/**
- * Read-only relay to Robinhood Chain, used as a fallback when the browser
- * rejects the RPC's own CORS headers. No session is required: it reads public
- * chain state, which is public whether or not anyone is signed in.
- */
-app.post('/api/rpc', rpcRelay)
 
 /* --------------------------------- Uploads --------------------------------- */
 

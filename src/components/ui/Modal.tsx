@@ -41,10 +41,21 @@ export function Modal({
 }: ModalProps) {
   const panelRef = useRef<HTMLDivElement>(null)
 
+  /**
+   * Escape reads the latest `onClose` through a ref rather than closing over it.
+   *
+   * Callers pass a fresh function on every render, so listing `onClose` as a
+   * dependency re-runs this effect on every keystroke — and it moves focus to
+   * the panel. That is why typing in a dialog used to lose focus after each
+   * character. The effect must depend on `open` alone.
+   */
+  const closeRef = useRef(onClose)
+  closeRef.current = onClose
+
   useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') closeRef.current()
     }
     document.addEventListener('keydown', onKey)
     const previousOverflow = document.body.style.overflow
@@ -54,7 +65,7 @@ export function Modal({
       document.removeEventListener('keydown', onKey)
       document.body.style.overflow = previousOverflow
     }
-  }, [open, onClose])
+  }, [open])
 
   if (!open) return null
 

@@ -8,10 +8,11 @@ import {
   MembershipService,
   PaymentService,
   WalletService,
+  ReownDismissed,
+  connectWithReown,
   demoProvider,
   evmProvider,
-  findWallet,
-  lastWalletId,
+  restoreReown,
   useDemoWallet,
   useRealWallet,
   type WalletOption,
@@ -130,6 +131,26 @@ export async function connectWallet(
   }
 }
 
+/**
+ * Opens Reown's connect modal and, once a wallet is chosen and connected, hands
+ * the provider to the rest of the app through the ordinary path.
+ *
+ * Closing the sheet is a decision, not a failure — it leaves the wallet state
+ * exactly as it was and says nothing.
+ */
+export async function connectReown() {
+  if (getState().wallet.status === 'connecting') return
+  try {
+    const wallet = await connectWithReown()
+    await connectWallet({ wallet })
+  } catch (error) {
+    if (error instanceof ReownDismissed) return
+    const message = error instanceof Error ? error.message : 'Could not connect'
+    setWallet({ status: 'error', error: message })
+    toast({ title: message, tone: 'error', icon: 'alert' })
+  }
+}
+
 export async function disconnectWallet() {
   await WalletService.disconnect()
   setWallet({ status: 'disconnected', account: null, accounts: [], balances: [] })
@@ -146,23 +167,19 @@ export async function disconnectWallet() {
  * loading the page never pops a wallet prompt on its own.
  */
 export function restoreWalletLink() {
-  const mode = rememberedMode()
-  if (mode === 'demo') {
-    void connectWallet({ silent: true, demo: true })
-    return
-  }
-  if (mode !== 'evm') return
+  // Only a real wallet is ever restored. The demo provider is the stand-in the
+  // app boots with, not something anyone chooses any more.
+  if (rememberedMode() !== 'evm') return
 
-  // Only a wallet that was actually chosen before is restored — never a
-  // fallback to whatever happens to be installed, which would reconnect an
-  // account the user never picked. WalletConnect is included, so a phone
-  // session survives a reload.
-  const wallet = findWallet(lastWalletId())
-  if (!wallet) return
-
-  useRealWallet(wallet)
-  void evmProvider.reconnect().then((accounts) => {
-    if (accounts.length) void syncWallet()
+  // AppKit keeps its own session, so a reload picks the wallet back up without
+  // opening anything. Nothing is restored unless it reports a live connection —
+  // loading the page must never pop a wallet prompt on its own.
+  void restoreReown().then((wallet) => {
+    if (!wallet) return
+    useRealWallet(wallet)
+    void evmProvider.reconnect().then((accounts) => {
+      if (accounts.length) void syncWallet()
+    })
   })
 }
 

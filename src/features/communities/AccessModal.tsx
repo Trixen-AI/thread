@@ -10,7 +10,7 @@ import {
   payForCommunity,
   toast,
 } from '@/store/actions'
-import { openWalletPicker } from '@/features/wallet/ConnectWalletModal'
+import { openWalletPicker } from '@/features/wallet/ConnectWallet'
 import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
 import { Avatar } from '@/components/ui/Avatar'

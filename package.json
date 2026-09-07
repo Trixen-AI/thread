@@ -17,7 +17,10 @@
     "typecheck": "tsc -b --noEmit"
   },
   "dependencies": {
-    "@walletconnect/ethereum-provider": "^2.24.0",
+    "@ethersproject/sha2": "^5.8.0",
+    "@reown/appkit": "^1.8.23",
+    "@reown/appkit-adapter-ethers": "^1.8.23",
+    "ethers": "^6.17.0",
     "express": "^5.2.1",
     "lucide-react": "^0.469.0",
     "react": "^19.0.0",

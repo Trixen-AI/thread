@@ -81,7 +81,16 @@ async function request<T>(
       body: options.body ? JSON.stringify(options.body) : undefined,
     })
   } catch {
-    throw new ApiError(0, 'Cannot reach the MESH server. Is it running?')
+    // `fetch` rejects the same way for an unreachable host and for a response
+    // the browser refused on CORS grounds — it deliberately will not say which.
+    // Naming both beats blaming the server for what is usually a origin that
+    // was never added to the allowlist.
+    throw new ApiError(
+      0,
+      API_ORIGIN
+        ? `Cannot reach the MESH server at ${API_ORIGIN}. It may be starting up, or this site's address may not be in the server's allowed origins.`
+        : 'Cannot reach the MESH server. Is it running?',
+    )
   }
 
   if (response.status === 204) return undefined as T
