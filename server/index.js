@@ -17,7 +17,13 @@ import * as repo from './repo.js'
 import { rpcRelay } from './rpc.js'
 import { seedIfEmpty } from './seed.js'
 
-const PORT = Number(process.env.MESH_API_PORT ?? 8787)
+/**
+ * Most hosts choose the port and pass it as PORT, then check that something is
+ * listening on it — so that is read before the MESH-specific name, and 8787 is
+ * only the local default. Binding the wrong port is the usual reason a deploy
+ * comes up healthy in the logs and dead from outside.
+ */
+const PORT = Number(process.env.MESH_API_PORT ?? process.env.PORT ?? 8787)
 const HOST = process.env.MESH_API_HOST ?? '0.0.0.0'
 
 const app = express()
