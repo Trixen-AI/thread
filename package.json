@@ -4,6 +4,9 @@
   "version": "0.1.0",
   "type": "module",
   "description": "MESH — Your Identity. Your Network. Your Value.",
+  "engines": {
+    "node": ">=22.14"
+  },
   "scripts": {
     "dev": "concurrently -n api,web -c magenta,cyan \"npm:dev:api\" \"npm:dev:web\"",
     "dev:api": "node --no-warnings server/index.js",
