@@ -5,7 +5,7 @@ import {
   type PublicClient,
   type WalletClient,
 } from 'viem'
-import { evmProvider } from '@/services/blockchain'
+import { evmProvider, robinhoodRpcUrl } from '@/services/blockchain'
 import { PONS_CHAIN, PONS_CHAIN_ID } from './config'
 
 /**
@@ -27,9 +27,10 @@ import { PONS_CHAIN, PONS_CHAIN_ID } from './config'
 /**
  * Read-only, always available, always on chain 4663.
  *
- * Straight to the RPC Robinhood Chain publishes — the browser talks to the
- * chain and nothing of MESH's sits in the path, so the launchpad keeps working
- * whatever the MESH server is doing.
+ * Straight to the chain — the browser talks to an RPC and nothing of MESH's
+ * sits in the path, so the launchpad keeps working whatever the MESH server is
+ * doing. Which RPC is `robinhoodRpcUrl()`: a dedicated provider when one is
+ * configured, and the chain's public endpoint otherwise.
  *
  * Reads are folded through Multicall3 rather than JSON-RPC batching. Checking
  * the quote-asset registry alone is over two hundred `eth_call`s, and a batch
@@ -46,7 +47,7 @@ import { PONS_CHAIN, PONS_CHAIN_ID } from './config'
  */
 export const ponsClient: PublicClient = createPublicClient({
   chain: PONS_CHAIN,
-  transport: http(PONS_CHAIN.rpcUrls.default.http[0], { retryCount: 3, retryDelay: 300 }),
+  transport: http(robinhoodRpcUrl(), { retryCount: 3, retryDelay: 300 }),
   batch: { multicall: { wait: 24 } },
 })
 

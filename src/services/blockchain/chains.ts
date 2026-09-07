@@ -49,6 +49,33 @@ export const robinhoodChain = defineChain({
   },
 })
 
+/**
+ * The RPC MESH itself reads Robinhood Chain through.
+ *
+ * The chain's own public endpoint is rate-limited and, from a browser,
+ * occasionally answers with a malformed CORS header — which is a page that
+ * renders or does not depending on luck. A dedicated provider fixes both.
+ *
+ * `VITE_RPC_URL` takes a full URL for any provider; `VITE_ALCHEMY_API_KEY` is
+ * the shortcut for Alchemy, which serves this chain natively. Neither is
+ * required: unset, this falls back to the endpoint the chain publishes and
+ * everything still works.
+ *
+ * Deliberately NOT used for `wallet_addEthereumChain`. That writes an RPC into
+ * the user's own wallet, permanently, and a key of ours has no business living
+ * in thousands of other people's wallet settings — see `addChainParams`, which
+ * keeps handing out the public endpoint.
+ */
+export function robinhoodRpcUrl(): string {
+  const explicit = (import.meta.env.VITE_RPC_URL ?? '').trim()
+  if (explicit) return explicit
+
+  const alchemyKey = (import.meta.env.VITE_ALCHEMY_API_KEY ?? '').trim()
+  if (alchemyKey) return `https://robinhood-mainnet.g.alchemy.com/v2/${alchemyKey}`
+
+  return robinhoodChain.rpcUrls.default.http[0]
+}
+
 export const KNOWN_CHAINS: Chain[] = [
   mainnet,
   robinhoodChain,

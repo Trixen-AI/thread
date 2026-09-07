@@ -30,6 +30,19 @@ interface ImportMetaEnv {
    * Defaults to Pinata's public gateway.
    */
   readonly VITE_IPFS_GATEWAY?: string
+
+  /**
+   * Alchemy API key for Robinhood Chain. Builds the endpoint
+   * `https://robinhood-mainnet.g.alchemy.com/v2/<key>`.
+   *
+   * Read by the browser, so it ships in the bundle and is visible to anyone —
+   * restrict it to your domains in the Alchemy dashboard. Unset, MESH falls
+   * back to the chain's public RPC.
+   */
+  readonly VITE_ALCHEMY_API_KEY?: string
+
+  /** A full RPC URL for Robinhood Chain. Wins over VITE_ALCHEMY_API_KEY. */
+  readonly VITE_RPC_URL?: string
 }
 
 interface ImportMeta {
